@@ -1,18 +1,19 @@
+import os
 import asyncio
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 from datetime import datetime
 from aiogram.enums import ParseMode
 from bot import bot
 from db import collection
 from helpers import generate_tg_mssg
 
-cfg = dotenv_values(".env")
+load_dotenv()
 
 async def send_message_to_chat(params: dict):
     try:
         messageText = generate_tg_mssg(params)
 
-        await bot.send_message(chat_id=cfg.get('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
+        await bot.send_message(chat_id=os.getenv('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
         
         await asyncio.to_thread(collection.insert_one, {
             "date":         datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),

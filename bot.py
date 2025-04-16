@@ -1,6 +1,7 @@
+import os
+from dotenv import load_dotenv
 from aiogram import Bot
-from dotenv import dotenv_values
 
-cfg = dotenv_values(".env")
+load_dotenv()
 
-bot = Bot(token=cfg.get('TOKEN'))
+bot = Bot(token=os.getenv('TOKEN'))

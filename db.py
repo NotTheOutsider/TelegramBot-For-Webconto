@@ -1,10 +1,11 @@
-from dotenv import dotenv_values
+import os
+from dotenv import load_dotenv
 from pymongo import MongoClient
 from pymongo.server_api import ServerApi
 
-cfg = dotenv_values(".env")
+load_dotenv()
 
-client = MongoClient(cfg.get('URI'), server_api=ServerApi('1'))
+client = MongoClient(os.getenv('URI'), server_api=ServerApi('1'))
 db = client["ClientBugReport"]
 collection = db["DocumentInfo"]
 
