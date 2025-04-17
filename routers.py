@@ -41,6 +41,16 @@ async def update_status():
     
     return result
 
+@app.get('/keepAlive')
+async def connection_keep_alive():
+
+    result = {'connection': 'has been extended'}
+
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return result    
+
 # FOR TESTING + 
 @app.put('/testRollbackStatus')
 async def rollback_status():
