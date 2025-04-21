@@ -16,17 +16,18 @@ async def send_message_to_chat(params: dict):
         await bot.send_message(chat_id=os.getenv('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
         
         await asyncio.to_thread(collection.insert_one, {
-            "date":         datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
-            "organisation": params.get('organisation'),
-            "user":         params.get('user'),
-            "individual":   params.get('individual'),
-            "message":      params.get('message'),
-            "object":       params.get('object'),
-            "tel":          params.get('tel'),
-	        "email":        params.get('email'),
-	        "release":      params.get('release'),
-	        "platform":     params.get('platform'),
-            "status":       'waiting for'
+            "date":             datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
+            "organisation":     params.get('organisation'),
+            "organisationID":   params.get('organisationID'),
+            "user":             params.get('user'),
+            "individual":       params.get('individual'),
+            "message":          params.get('message'),
+            "object":           params.get('object'),
+            "tel":              params.get('tel'),
+	        "email":            params.get('email'),
+	        "release":          params.get('release'),
+	        "platform":         params.get('platform'),
+            "status":           'waiting for'
         })
 
         return {"status": "Message sent and saved successfully!"}
