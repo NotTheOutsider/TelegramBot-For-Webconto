@@ -24,9 +24,9 @@ async def send_message_to_chat(params: dict):
             "message":          params.get('message'),
             "object":           params.get('object'),
             "tel":              params.get('tel'),
-	        "email":            params.get('email'),
-	        "release":          params.get('release'),
-	        "platform":         params.get('platform'),
+	    "email":            params.get('email'),
+	    "release":          params.get('release'),
+	    "platform":         params.get('platform'),
             "status":           'waiting for'
         })
 
