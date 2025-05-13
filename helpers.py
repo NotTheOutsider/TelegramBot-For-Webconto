@@ -9,7 +9,9 @@ def escape_markdown_v2(text):
     return re.sub(reserved_chars, r'\\\1', str(text))
 
 def generate_tg_mssg(params: dict):
-    mssg = escape_markdown_v2(textwrap.dedent(f'''\
+     
+     
+    mssg = textwrap.dedent(f'''\
         Организация: {params.get('organisation')}
         Пользователь: {params.get('user')}
         Физ. лицо: {params.get('individual') if params.get('individual') != '' else 'Не указан'}
@@ -23,6 +25,10 @@ def generate_tg_mssg(params: dict):
         
         {datetime.now().strftime('%Y-%m-%d, %H:%M:%S')}
         {params.get('release')}
-        {params.get('platform')}'''))
+        {params.get('platform')}''')
+    
+    mssg = '\n'.join([m.lstrip() for m in mssg.split('\n')])
+        
+    mssg = escape_markdown_v2(mssg)
 
     return mssg
