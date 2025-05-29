@@ -9,8 +9,7 @@ def escape_markdown_v2(text):
     return re.sub(reserved_chars, r'\\\1', str(text))
 
 def generate_tg_mssg(params: dict):
-     
-     
+         
     mssg = textwrap.dedent(f'''\
         Организация: {params.get('organisation')}
         Пользователь: {params.get('user')}
@@ -32,3 +31,4 @@ def generate_tg_mssg(params: dict):
     mssg = escape_markdown_v2(mssg)
 
     return mssg
+

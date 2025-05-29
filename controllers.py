@@ -9,7 +9,7 @@ from helpers import generate_tg_mssg
 
 load_dotenv()
 
-async def send_message_to_chat(params: dict):
+async def create_order(params: dict):
     try:
         messageText = generate_tg_mssg(params)
 
@@ -24,9 +24,9 @@ async def send_message_to_chat(params: dict):
             "message":          params.get('message'),
             "object":           params.get('object'),
             "tel":              params.get('tel'),
-	    "email":            params.get('email'),
-	    "release":          params.get('release'),
-	    "platform":         params.get('platform'),
+	        "email":            params.get('email'),
+	        "release":          params.get('release'),
+	        "platform":         params.get('platform'),
             "status":           'waiting for'
         })
 
@@ -35,7 +35,7 @@ async def send_message_to_chat(params: dict):
     except Exception as e:
         return {"error": str(e)}
     
-async def get_messages_from_db():
+async def get_orders():
     try:
 
         docs = await asyncio.to_thread(
@@ -56,7 +56,7 @@ async def get_messages_from_db():
     except Exception as e:
         return {"error": str(e)}
     
-async def update_messages_from_db():
+async def update_orders_status():
     try:
 
         query_filter = {'status' : 'waiting for'}

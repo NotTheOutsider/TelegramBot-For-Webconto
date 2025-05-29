@@ -1,11 +1,14 @@
 from fastapi import FastAPI, HTTPException
+import exceptions
 import controllers
 
 app = FastAPI()
+app.add_exception_handler(HTTPException, exceptions.http_exception_handler)
 
-@app.post('/sendMssgToTG')
-async def send_message(params: dict):
-    org = params.get('organisation')
+@app.post('/order') 
+async def create_order(params: dict):
+    
+    org = params.get('organisationID')
     user = params.get('user')
     msg = params.get('message')
     tel = params.get('tel')
@@ -13,43 +16,66 @@ async def send_message(params: dict):
     platform = params.get('platform')
 
     if not org or not user or not msg or not tel or not release or not platform:
-        raise HTTPException(status_code=400, detail="Message parameter is required")
+        raise HTTPException(status_code=400, detail="Parameter is required")
 
-    result = await controllers.send_message_to_chat(params)
+    result = await controllers.create_order(params)
     
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     return result
 
-@app.get('/getMssg')
-async def get_messages():
+@app.get('/order')
+async def get_orders():
 
-    result = await controllers.get_messages_from_db()
+    result = await controllers.get_orders()
     
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     
     return result
 
-@app.put('/updateStatus')
-async def update_status():
+@app.patch('/order')
+async def update_orders_status(params: dict):
+    status = params.get('status')    
+    
+    if not status:
+        raise HTTPException(status_code=400, detail="Parameter is required")
 
-    result = await controllers.update_messages_from_db()
+    result = await controllers.update_orders_status()
 
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     
     return result
 
-@app.get('/keepAlive')
-async def connection_keep_alive():
+# @app.patch('/order')
+# async def update_status(params: dict):
+#     status = params.get('status')    
+    
+#     if not status:
+#         raise HTTPException(status_code=400, detail="Parameter is required")
 
-    result = {'connection': 'has been extended'}
+#     result = await controllers.update_orders()
 
+#     if "error" in result:
+#         raise HTTPException(status_code=500, detail=result["error"])
+    
+#     return result
+
+@app.post('/answear')
+async def send_answear(params: dict):
+    userID = params.get('userID')
+    answ = params.get('answear')    
+    
+    if not userID or not answ:
+        raise HTTPException(status_code=400, detail="Parameter is required")
+
+    result = await controllers.send_answear(params)
+    
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
-    
-    return result    
+    return result
+
 
 # FOR TESTING + 
 @app.put('/testRollbackStatus')
