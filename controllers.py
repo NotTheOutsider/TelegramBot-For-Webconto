@@ -107,3 +107,14 @@ async def rollback_messages_from_db():
         return {"error": str(ve)}
     except Exception as e:
         return {"error": str(e)}
+
+async def send_answear(params: dict):
+    messageText = params.get('answear')
+    userID      = params.get('userID')
+    
+    try:
+        await bot.send_message(chat_id=userID, text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
+        
+        return {"status": "Answear sent successfully!"}
+    except Exception as e:
+        return {"error": str(e)} 
