@@ -13,6 +13,7 @@ try:
     db = client["ClientBugReport"]
     collectionOrders = db["DocumentInfo"]
     collectionVerification = db["VerificationCodes"]
+    collectionChats = db["ChatMasks"]
 except Exception as e:
     print(f"Failed to connect to MongoDB: {e}")
     raise

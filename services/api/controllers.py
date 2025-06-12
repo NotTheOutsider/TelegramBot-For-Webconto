@@ -3,8 +3,8 @@ from dotenv import load_dotenv
 from datetime import datetime, timedelta
 from aiogram.enums import ParseMode
 from services.bot.bot import bot
-from services.common.db import collectionOrders, collectionVerification
-from services.common.helpers import generate_tg_mssg
+from services.common.db import collectionOrders, collectionVerification, collectionChats
+from services.common.helpers import generate_tg_mssg, generate_chat_mask
 
 load_dotenv()
 
@@ -70,14 +70,26 @@ async def submit_verification(code: str):
     current_time = datetime.now()
     fifteen_minutes_ago = current_time - timedelta(minutes=15)
     try:
-        result = await collectionVerification.find_one({
+        result = await collectionVerification.find_one_and_delete({
             'verification': code,
             'date': {"$gte": fifteen_minutes_ago.strftime('%Y-%m-%d, %H:%M:%S')}
         }) 
     
         if result:
             result["_id"] = str(result["_id"])
-            return result
+            newChatMask = generate_chat_mask()
+          
+            # Deleting chat if it already exists
+            existingChat = await collectionChats.find_one_and_delete({
+                'chatID': result['chat']
+            })
+            
+            await collectionChats.insert_one({
+                'chatMask': newChatMask,
+                'chatID': result['chat']
+            })
+            
+            return {"maskCode": newChatMask}
         else:
             return {"message": "No record found matching the criteria"}
     except Exception as e:

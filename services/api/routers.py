@@ -48,7 +48,7 @@ async def update_orders_status(params: dict):
     
     return result
 
-@app.get('/verification')
+@app.post('/verification')
 async def submit_verification_code(params: dict):
     code = params.get('code')
     
