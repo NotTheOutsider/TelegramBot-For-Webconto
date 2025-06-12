@@ -1,6 +1,7 @@
 import re
 import textwrap
 from datetime import datetime
+from secrets import randbelow
 
 def escape_markdown_v2(text):
     if text is None:
@@ -32,3 +33,5 @@ def generate_tg_mssg(params: dict):
 
     return mssg
 
+def generate_verification_code():
+    return f"{randbelow(1000000):06d}"

@@ -1,6 +1,6 @@
 from fastapi import FastAPI, HTTPException
-import exceptions
-import controllers
+import services.common.exceptions as exceptions
+import services.api.controllers as controllers
 
 app = FastAPI()
 app.add_exception_handler(HTTPException, exceptions.http_exception_handler)
@@ -47,20 +47,6 @@ async def update_orders_status(params: dict):
         raise HTTPException(status_code=500, detail=result["error"])
     
     return result
-
-# @app.patch('/order')
-# async def update_status(params: dict):
-#     status = params.get('status')    
-    
-#     if not status:
-#         raise HTTPException(status_code=400, detail="Parameter is required")
-
-#     result = await controllers.update_orders()
-
-#     if "error" in result:
-#         raise HTTPException(status_code=500, detail=result["error"])
-    
-#     return result
 
 @app.post('/answear')
 async def send_answear(params: dict):

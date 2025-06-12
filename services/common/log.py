@@ -1,5 +1,5 @@
 import logging
-import bcolors
+import services.common.bcolors as bcolors
 
 RECORD_FORMAT = "%(asctime)s - %(levelname)s (%(filename)s:%(lineno)d) %(message)s"
 RECORD_FORMAT_CONSOLE = "%(asctime)s - {color}%(levelname)s{end_color} (%(filename)s:%(lineno)d) %(message)s"

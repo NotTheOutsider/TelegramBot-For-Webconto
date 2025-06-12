@@ -12,3 +12,6 @@ venv/
 
 # log file
 .log
+
+# starting file
+start.py

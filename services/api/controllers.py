@@ -1,11 +1,10 @@
 import os
-import asyncio
 from dotenv import load_dotenv
 from datetime import datetime
 from aiogram.enums import ParseMode
-from bot import bot
-from db import collection
-from helpers import generate_tg_mssg
+from services.bot.bot import bot
+from services.common.db import collectionOrders
+from services.common.helpers import generate_tg_mssg
 
 load_dotenv()
 
@@ -15,7 +14,7 @@ async def create_order(params: dict):
 
         await bot.send_message(chat_id=os.getenv('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
         
-        await asyncio.to_thread(collection.insert_one, {
+        await collectionOrders.insert_one({
             "date":             datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
             "organisation":     params.get('organisation'),
             "organisationID":   params.get('organisationID'),
@@ -37,20 +36,12 @@ async def create_order(params: dict):
     
 async def get_orders():
     try:
-
-        docs = await asyncio.to_thread(
-            collection.find, {
-                'status': 'waiting for'
-            }
-        )
-
         result = []
-        for doc in docs:
+        async for doc in collectionOrders.find({'status': 'waiting for'}):
             doc["_id"] = str(doc["_id"])
             result.append(doc)
-
+            
         return result if result else {"message": "No documents found in the specified range"}
-
     except ValueError as ve:
         return {"error": str(ve)}
     except Exception as e:
@@ -58,25 +49,18 @@ async def get_orders():
     
 async def update_orders_status():
     try:
-
-        query_filter = {'status' : 'waiting for'}
-        update_operation = { '$set' : 
-            { 'status' : 'uploaded' }
-        }
-
-        result = collection.update_many(query_filter, update_operation)
+        query_filter = {'status': 'waiting for'}
+        update_operation = {'$set': {'status': 'uploaded'}}
+        result = await collectionOrders.update_many(query_filter, update_operation)
         
         if result:
             return {
                 "matched_count": result.matched_count,
                 "modified_count": result.modified_count,
                 "acknowledged": result.acknowledged
-                }  
+            }  
         else:
-            return {
-                "message": "Cannot update status for messages"
-                }
-
+            return {"message": "Cannot update status for messages"}
     except ValueError as ve:
         return {"error": str(ve)}
     except Exception as e:
@@ -84,25 +68,18 @@ async def update_orders_status():
     
 async def rollback_messages_from_db():
     try:
-
-        query_filter = {'status' : 'uploaded'}
-        update_operation = { '$set' : 
-            { 'status' : 'waiting for' }
-        }
-
-        result = collection.update_many(query_filter, update_operation)
+        query_filter = {'status': 'uploaded'}
+        update_operation = {'$set': {'status': 'waiting for'}}
+        result = await collectionOrders.update_many(query_filter, update_operation)
         
         if result:
             return {
                 "matched_count": result.matched_count,
                 "modified_count": result.modified_count,
                 "acknowledged": result.acknowledged
-                }  
+            }  
         else:
-            return {
-                "message": "Cannot update status for messages"
-                }
-
+            return {"message": "Cannot update status for messages"}
     except ValueError as ve:
         return {"error": str(ve)}
     except Exception as e:

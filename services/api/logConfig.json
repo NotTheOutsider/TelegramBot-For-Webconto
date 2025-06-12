@@ -7,7 +7,7 @@
       "datefmt": "%Y-%m-%d %H:%M:%S"
     },
     "console": {
-      "()": "log.CustomFormatter"
+      "()": "services.common.log.CustomFormatter"
     }
   },
   "handlers": {
