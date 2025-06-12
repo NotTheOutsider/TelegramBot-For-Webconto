@@ -48,6 +48,20 @@ async def update_orders_status(params: dict):
     
     return result
 
+@app.get('/verification')
+async def submit_verification_code(params: dict):
+    code = params.get('code')
+    
+    if not code:
+        raise HTTPException(status_code=400, detail="Parameter is required")
+    
+    result = await controllers.submit_verification(code)
+    
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return result
+
 @app.post('/answear')
 async def send_answear(params: dict):
     userID = params.get('userID')

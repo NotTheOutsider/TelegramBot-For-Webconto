@@ -1,9 +1,9 @@
 import os
 from dotenv import load_dotenv
-from datetime import datetime
+from datetime import datetime, timedelta
 from aiogram.enums import ParseMode
 from services.bot.bot import bot
-from services.common.db import collectionOrders
+from services.common.db import collectionOrders, collectionVerification
 from services.common.helpers import generate_tg_mssg
 
 load_dotenv()
@@ -65,7 +65,36 @@ async def update_orders_status():
         return {"error": str(ve)}
     except Exception as e:
         return {"error": str(e)}
+
+async def submit_verification(code: str):
+    current_time = datetime.now()
+    fifteen_minutes_ago = current_time - timedelta(minutes=15)
+    try:
+        result = await collectionVerification.find_one({
+            'verification': code,
+            'date': {"$gte": fifteen_minutes_ago.strftime('%Y-%m-%d, %H:%M:%S')}
+        }) 
     
+        if result:
+            result["_id"] = str(result["_id"])
+            return result
+        else:
+            return {"message": "No record found matching the criteria"}
+    except Exception as e:
+        return {"error": str(e)}
+
+
+async def send_answear(params: dict):
+    messageText = params.get('answear')
+    userID      = params.get('userID')
+    
+    try:
+        await bot.send_message(chat_id=userID, text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
+        
+        return {"status": "Answear sent successfully!"}
+    except Exception as e:
+        return {"error": str(e)} 
+
 async def rollback_messages_from_db():
     try:
         query_filter = {'status': 'uploaded'}
@@ -84,14 +113,3 @@ async def rollback_messages_from_db():
         return {"error": str(ve)}
     except Exception as e:
         return {"error": str(e)}
-
-async def send_answear(params: dict):
-    messageText = params.get('answear')
-    userID      = params.get('userID')
-    
-    try:
-        await bot.send_message(chat_id=userID, text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
-        
-        return {"status": "Answear sent successfully!"}
-    except Exception as e:
-        return {"error": str(e)} 
