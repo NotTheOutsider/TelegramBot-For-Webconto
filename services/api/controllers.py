@@ -117,6 +117,9 @@ async def send_answear(params: dict):
     try:
         result = await collectionChats.find_one({'telegramMask': telegramMask});
         
+        if not result:
+            return {"error": "Can't find chat!"}
+        
         await bot.send_message(chat_id=result['chatID'], text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
         
         return {"status": "Answear sent successfully!"}

@@ -37,11 +37,6 @@ async def get_orders():
 
 @app.patch('/order')
 async def update_orders_status(params: dict):
-    status = params.get('status')    
-    
-    if not status:
-        raise HTTPException(status_code=400, detail="Parameter is required")
-
     result = await controllers.update_orders_status()
 
     if "error" in result:
