@@ -36,7 +36,7 @@ async def get_orders():
     return result
 
 @app.patch('/order')
-async def update_orders_status(params: dict):
+async def update_orders_status():
     result = await controllers.update_orders_status()
 
     if "error" in result:
