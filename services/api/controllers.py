@@ -18,15 +18,17 @@ async def create_order(params: dict):
             "date":             datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
             "organisation":     params.get('organisation'),
             "organisationID":   params.get('organisationID'),
+            "guid":             params.get('guid'),
             "user":             params.get('user'),
             "individual":       params.get('individual'),
             "message":          params.get('message'),
             "object":           params.get('object'),
             "tel":              params.get('tel'),
 	        "email":            params.get('email'),
+            "telegramMask":     params.get('telegramMask'),
 	        "release":          params.get('release'),
 	        "platform":         params.get('platform'),
-            "status":           'waiting for'
+            "status":           'pending'
         })
 
         return {"status": "Message sent and saved successfully!"}
@@ -36,8 +38,20 @@ async def create_order(params: dict):
     
 async def get_orders():
     try:
+        
+        # pipeline = [
+        #     {
+        #         '$lookup': {
+        #             'from': 'ChatMasks',
+        #             'localField': 'chatMask',
+        #             'foreignField': 'chatMask',
+        #             'as': 'chatInfo'
+        #         }
+        #     }
+        # ]
+        
         result = []
-        async for doc in collectionOrders.find({'status': 'waiting for'}):
+        async for doc in collectionOrders.find({'status': 'pending'}):
             doc["_id"] = str(doc["_id"])
             result.append(doc)
             
@@ -49,7 +63,7 @@ async def get_orders():
     
 async def update_orders_status():
     try:
-        query_filter = {'status': 'waiting for'}
+        query_filter = {'status': 'pending'}
         update_operation = {'$set': {'status': 'uploaded'}}
         result = await collectionOrders.update_many(query_filter, update_operation)
         
@@ -85,11 +99,11 @@ async def submit_verification(code: str):
             })
             
             await collectionChats.insert_one({
-                'chatMask': newChatMask,
+                'telegramMask': newChatMask,
                 'chatID': result['chat']
             })
             
-            return {"maskCode": newChatMask}
+            return {"telegramMask": newChatMask}
         else:
             return {"message": "No record found matching the criteria"}
     except Exception as e:
@@ -97,11 +111,13 @@ async def submit_verification(code: str):
 
 
 async def send_answear(params: dict):
-    messageText = params.get('answear')
-    userID      = params.get('userID')
+    messageText     = params.get('answear')
+    telegramMask    = params.get('telegramMask')
     
     try:
-        await bot.send_message(chat_id=userID, text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
+        result = await collectionChats.find_one({'telegramMask': telegramMask});
+        
+        await bot.send_message(chat_id=result['chatID'], text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
         
         return {"status": "Answear sent successfully!"}
     except Exception as e:
@@ -110,7 +126,7 @@ async def send_answear(params: dict):
 async def rollback_messages_from_db():
     try:
         query_filter = {'status': 'uploaded'}
-        update_operation = {'$set': {'status': 'waiting for'}}
+        update_operation = {'$set': {'status': 'pending'}}
         result = await collectionOrders.update_many(query_filter, update_operation)
         
         if result:

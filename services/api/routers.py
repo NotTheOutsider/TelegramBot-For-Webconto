@@ -9,6 +9,7 @@ app.add_exception_handler(HTTPException, exceptions.http_exception_handler)
 async def create_order(params: dict):
     
     org = params.get('organisationID')
+    guid = params.get('guid')
     user = params.get('user')
     msg = params.get('message')
     tel = params.get('tel')
@@ -64,10 +65,10 @@ async def submit_verification_code(params: dict):
 
 @app.post('/answear')
 async def send_answear(params: dict):
-    userID = params.get('userID')
-    answ = params.get('answear')    
+    telegramMask    = params.get('telegramMask')
+    answ            = params.get('answear')    
     
-    if not userID or not answ:
+    if not telegramMask or not answ:
         raise HTTPException(status_code=400, detail="Parameter is required")
 
     result = await controllers.send_answear(params)
