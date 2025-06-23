@@ -16,7 +16,7 @@ async def create_order(params: dict):
     release = params.get('release')
     platform = params.get('platform')
 
-    if not org or not user or not msg or not tel or not release or not platform:
+    if not org or not guid or not user or not msg or not tel or not release or not platform:
         raise HTTPException(status_code=400, detail="Parameter is required")
 
     result = await controllers.create_order(params)
@@ -30,6 +30,27 @@ async def get_orders():
 
     result = await controllers.get_orders()
     
+    if "error" in result:
+        raise HTTPException(status_code=500, detail=result["error"])
+    
+    return result
+
+@app.put('/order')
+async def update_order_info(params: dict):
+    
+    org = params.get('organisationID')
+    guid = params.get('guid')
+    user = params.get('user')
+    msg = params.get('message')
+    tel = params.get('tel')
+    release = params.get('release')
+    platform = params.get('platform')
+
+    if not org or not guid or not user or not msg or not tel or not release or not platform:
+        raise HTTPException(status_code=400, detail="Parameter is required")
+    
+    result = await controllers.update_order_info()
+
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])
     

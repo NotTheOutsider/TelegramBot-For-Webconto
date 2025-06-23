@@ -60,6 +60,40 @@ async def get_orders():
         return {"error": str(ve)}
     except Exception as e:
         return {"error": str(e)}
+   
+async def update_order_info(params: dict):
+    try:
+        query_filter = {'guid': params.get("guid")}
+        update_operation = {'$set': {
+            'date':             datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
+            'organisation':     params.get('organisation'),
+            'organisationID':   params.get('organisationID'),
+            'guid':             params.get('guid'),
+            'user':             params.get('user'),
+            'individual':       params.get('individual'),
+            'message':          params.get('message'),
+            'object':           params.get('object'),
+            'tel':              params.get('tel'),
+	        'email':            params.get('email'),
+            'telegramMask':     params.get('telegramMask'),
+	        'release':          params.get('release'),
+	        'platform':         params.get('platform'),
+            'status': 'pending'
+            }}
+        result = await collectionOrders.update_many(query_filter, update_operation)
+        
+        if result:
+            return {
+                "matched_count": result.matched_count,
+                "modified_count": result.modified_count,
+                "acknowledged": result.acknowledged
+            }  
+        else:
+            return {"message": "Cannot update status for messages"}
+    except ValueError as ve:
+        return {"error": str(ve)}
+    except Exception as e:
+        return {"error": str(e)}
     
 async def update_orders_status():
     try:
