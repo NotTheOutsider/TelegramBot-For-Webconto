@@ -49,7 +49,7 @@ async def update_order_info(params: dict):
     if not org or not guid or not user or not msg or not tel or not release or not platform:
         raise HTTPException(status_code=400, detail="Parameter is required")
     
-    result = await controllers.update_order_info()
+    result = await controllers.update_order_info(params)
 
     if "error" in result:
         raise HTTPException(status_code=500, detail=result["error"])

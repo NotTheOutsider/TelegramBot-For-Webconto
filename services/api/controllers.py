@@ -63,6 +63,11 @@ async def get_orders():
    
 async def update_order_info(params: dict):
     try:
+        
+        messageText = generate_tg_mssg(params)
+
+        await bot.send_message(chat_id=os.getenv('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
+        
         query_filter = {'guid': params.get("guid")}
         update_operation = {'$set': {
             'date':             datetime.now().strftime('%Y-%m-%d, %H:%M:%S'),
@@ -80,6 +85,7 @@ async def update_order_info(params: dict):
 	        'platform':         params.get('platform'),
             'status': 'pending'
             }}
+        
         result = await collectionOrders.update_many(query_filter, update_operation)
         
         if result:
