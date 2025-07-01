@@ -66,7 +66,7 @@ async def cmd_start(message: types.Message):
         })
         
     await message.answer(
-        f"Вот Ваш код для верификации, **никому его не показывайте**:\n `{verificationCode}`",
+        f"Вот Ваш код для верификации, **никому его не показывайте**:\n `{verificationCode}` \n\nСрок действия кода 15 минут",
         parse_mode=ParseMode.MARKDOWN_V2
     )
     
