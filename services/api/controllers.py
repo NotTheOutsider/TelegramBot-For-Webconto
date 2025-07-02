@@ -36,31 +36,6 @@ async def create_order(params: dict):
     except Exception as e:
         return {"error": str(e)}
     
-async def get_orders():
-    try:
-        
-        # pipeline = [
-        #     {
-        #         '$lookup': {
-        #             'from': 'ChatMasks',
-        #             'localField': 'chatMask',
-        #             'foreignField': 'chatMask',
-        #             'as': 'chatInfo'
-        #         }
-        #     }
-        # ]
-        
-        result = []
-        async for doc in collectionOrders.find({'status': 'pending'}):
-            doc["_id"] = str(doc["_id"])
-            result.append(doc)
-            
-        return result if result else {"message": "No documents found in the specified range"}
-    except ValueError as ve:
-        return {"error": str(ve)}
-    except Exception as e:
-        return {"error": str(e)}
-   
 async def update_order_info(params: dict):
     try:
         
@@ -99,6 +74,31 @@ async def update_order_info(params: dict):
             }  
         else:
             return {"message": "Cannot update status for messages"}
+    except ValueError as ve:
+        return {"error": str(ve)}
+    except Exception as e:
+        return {"error": str(e)}    
+    
+async def get_orders():
+    try:
+        
+        # pipeline = [
+        #     {
+        #         '$lookup': {
+        #             'from': 'ChatMasks',
+        #             'localField': 'chatMask',
+        #             'foreignField': 'chatMask',
+        #             'as': 'chatInfo'
+        #         }
+        #     }
+        # ]
+        
+        result = []
+        async for doc in collectionOrders.find({'status': 'pending'}):
+            doc["_id"] = str(doc["_id"])
+            result.append(doc)
+            
+        return result if result else {"message": "No documents found in the specified range"}
     except ValueError as ve:
         return {"error": str(ve)}
     except Exception as e:

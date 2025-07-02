@@ -1,9 +1,10 @@
+name: webconto-tg-bot
 services:
   api:
-    image: nottheoutsider/webc_bot_api:1.0
+    image: nottheoutsider/webc_tgbot:1.2
     command: ["python", "-m", "services.api.api"]
     ports:
-      - "5000:5000"  # API on port 5000
+      - "5000:5000"  # API listens on port 5000
     environment:
       - URI=${URI}
       - CHAT_ID=${CHAT_ID}
@@ -12,11 +13,11 @@ services:
       - app-network
 
   bot:
-    image: nottheoutsider/webc_tgbot:1.1  # Ensure this image exists
+    image: nottheoutsider/webc_tgbot:1.2
     command: ["python", "-m", "services.bot.bot"]
     depends_on:
       - api
-    # Remove ports unless bot needs external access
+    # No ports mapping for bot unless needed
     environment:
       - URI=${URI}
       - CHAT_ID=${CHAT_ID}
