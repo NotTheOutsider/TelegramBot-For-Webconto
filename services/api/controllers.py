@@ -64,6 +64,9 @@ async def get_orders():
 async def update_order_info(params: dict):
     try:
         
+        if collectionOrders.find_one({'guid': params.get('guid')}):
+            return {"error": "This document do not exists in database"}  
+        
         messageText = generate_tg_mssg(params)
 
         await bot.send_message(chat_id=os.getenv('CHAT_ID'), text=messageText, parse_mode=ParseMode.MARKDOWN_V2)
@@ -120,6 +123,19 @@ async def update_orders_status():
     except Exception as e:
         return {"error": str(e)}
 
+async def update_mask_in_all_orders(telegramMask:str, new_value):
+    try:
+        filter      = {"telegramMask": telegramMask}
+        updated_value    = {'$set': {"telegramMask": new_value}}
+        
+        await collectionOrders.update_many(filter, updated_value)
+        
+        return {"succeful": True}
+    except ValueError as ve:
+        return {"error": str(ve)}
+    except Exception as e:
+        return {"error": str(e)}
+
 async def submit_verification(code: str):
     current_time = datetime.now()
     fifteen_minutes_ago = current_time - timedelta(minutes=15)
@@ -132,16 +148,18 @@ async def submit_verification(code: str):
         if result:
             result["_id"] = str(result["_id"])
             newChatMask = generate_chat_mask()
-          
-            # Deleting chat if it already exists
-            existingChat = await collectionChats.find_one_and_delete({
-                'chatID': result['chat']
-            })
             
-            await collectionChats.insert_one({
-                'telegramMask': newChatMask,
-                'chatID': result['chat']
-            })
+            filter = {"chatID": result['chat']}          
+            chat_already_exists = await collectionChats.find_one(filter)
+          
+            if chat_already_exists:
+                await collectionChats.update_one(filter, {'$set': {'telegramMask': newChatMask}})
+                await update_mask_in_all_orders(telegramMask=chat_already_exists['telegramMask'], new_value=newChatMask) 
+            else:             
+                await collectionChats.insert_one({
+                    'telegramMask': newChatMask,
+                    'chatID': result['chat']
+                })
             
             return {"telegramMask": newChatMask}
         else:
@@ -149,6 +167,20 @@ async def submit_verification(code: str):
     except Exception as e:
         return {"error": str(e)}
 
+
+# Не уверен, что эта штука тут нужна Т_Т 
+async def delete_chat(chatID: int):
+    try:
+        filter = {"chatID": chatID}
+        
+        existing_chat = await collectionChats.find_one_and_delete(filter)
+        await update_mask_in_all_orders(existing_chat['telegramMask'], None)
+        
+        return {"status": "Chat was deleted succesfully!"}
+    except ValueError as ve:
+        return {"error": str(ve)}
+    except Exception as e:
+        return {"error": str(e)}
 
 async def send_answear(params: dict):
     messageText     = params.get('answear')
@@ -162,7 +194,7 @@ async def send_answear(params: dict):
         
         await bot.send_message(chat_id=result['chatID'], text=messageText, parse_mode=ParseMode.MARKDOWN_V2,)
         
-        return {"status": "Answear sent successfully!"}
+        return {"status": "Answear was sent successfully!"}
     except Exception as e:
         return {"error": str(e)} 
 

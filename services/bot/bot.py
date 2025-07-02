@@ -6,7 +6,12 @@ from aiogram.filters import Command
 from aiogram.types import InlineKeyboardButton, InlineKeyboardMarkup
 from aiogram.enums import ParseMode
 from services.common.helpers import generate_verification_code
-from services.common.db import collectionVerification
+from services.common.db import collectionVerification, collectionChats, collectionOrders
+# Надо обдумать функционал с удалением чата из БД
+# Сейчас есть общая функция, которая в уже существующих заявках делитает или меняет маску
+# И эта функци юзается в АПИ и Боте, а в хелперы её выносить глупо, пока что будет импорт контроллера сюда
+# UPDT: ИМПОРТА НЕ БУДЕТ ИЗ-ЗА circular import
+# ААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААААА С*КА
 
 load_dotenv()
 
@@ -46,6 +51,8 @@ async def cmd_start(message: types.Message):
     verificationCode = generate_verification_code()
     
     # Checking if this code exists in collection
+    
+    # Че это за ху**я? Это Г не будет работать, надо переписать, а лучше всю "логику бота" в отдельный файл вынести, а здесь будут чисто роутеры
     existingCode = await collectionVerification.find_one({"verification": verificationCode})
     while existingCode != None:
         verificationCode = generate_verification_code()
@@ -66,13 +73,33 @@ async def cmd_start(message: types.Message):
         })
         
     await message.answer(
-        f"Вот Ваш код для верификации, **никому его не показывайте**:\n `{verificationCode}` \n\nСрок действия кода 15 минут",
+        f'Вот Ваш код для верификации, *никому его не показывайте*:\n`{verificationCode}`\n\nСрок действия кода 15 минут',
         parse_mode=ParseMode.MARKDOWN_V2
     )
     
 @dp.message(F.text.lower() == "отвязать телеграм от всех конфигураций")
 async def cmd_start(message: types.Message):
-    await message.answer("Дэлаю")
+    chatID = message.chat.id
     
-if __name__ == "__main__":
+    try:
+        filter = {'chatID': chatID}
+            
+        existing_chat = await collectionChats.find_one_and_delete(filter)
+            
+        filter = {'telegramMask': existing_chat['telegramMask']}
+        updated_value = {'$set': {'telegramMask': None}}
+        
+        await collectionOrders.update_many(filter, updated_value)
+    except Exception as e:
+        await message.answer(
+            f'Произошла ошибка:\n_{e}_\nПопробуйте повторить операцию позже или обратитесь к разработчику', 
+            parse_mode=ParseMode.MARKDOWN_V2
+        )
+    
+    await message.answer(
+            '*Телеграм был успешно отвязан\\!*\n\nОтветы по вашим заявкам не смогут больше приходить в этот чат', 
+            parse_mode=ParseMode.MARKDOWN_V2
+        )
+    
+if __name__ == '__main__':
     dp.run_polling(bot)

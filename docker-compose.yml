@@ -1,32 +1,26 @@
-version: '3.13.3'
 services:
   api:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nottheoutsider/webc_bot_api:1.0
     command: ["python", "-m", "services.api.api"]
     ports:
-      - "5000:5000"  # Map host port 8000 to container port 8000 for FastAPI
-    volumes:
-      - .:/app
+      - "5000:5000"  # API on port 5000
     environment:
-      - URI=${URI}  # MongoDB URI from .env
-      - CHAT_ID=${CHAT_ID}  # Telegram chat ID if needed
+      - URI=${URI}
+      - CHAT_ID=${CHAT_ID}
+      - TOKEN=${TOKEN}
     networks:
       - app-network
 
   bot:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: nottheoutsider/webc_tgbot:1.1  # Ensure this image exists
     command: ["python", "-m", "services.bot.bot"]
     depends_on:
       - api
-    volumes:
-      - .:/app
+    # Remove ports unless bot needs external access
     environment:
       - URI=${URI}
       - CHAT_ID=${CHAT_ID}
+      - TOKEN=${TOKEN}
     networks:
       - app-network
 
