@@ -39,7 +39,7 @@ async def create_order(params: dict):
 async def update_order_info(params: dict):
     try:
         
-        if collectionOrders.find_one({'guid': params.get('guid')}):
+        if not collectionOrders.find_one({'guid': params.get('guid')}):
             return {"error": "This document do not exists in database"}  
         
         messageText = generate_tg_mssg(params)
