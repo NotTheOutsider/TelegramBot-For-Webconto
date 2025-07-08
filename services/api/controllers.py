@@ -126,7 +126,7 @@ async def update_orders_status():
 async def update_mask_in_all_orders(telegramMask:str, new_value):
     try:
         filter      = {"telegramMask": telegramMask}
-        updated_value    = {'$set': {"telegramMask": new_value}}
+        updated_value    = {'$set': {"telegramMask": new_value, 'status': 'pending'}}
         
         await collectionOrders.update_many(filter, updated_value)
         

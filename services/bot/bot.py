@@ -87,7 +87,7 @@ async def cmd_start(message: types.Message):
         existing_chat = await collectionChats.find_one_and_delete(filter)
             
         filter = {'telegramMask': existing_chat['telegramMask']}
-        updated_value = {'$set': {'telegramMask': None}}
+        updated_value = {'$set': {'telegramMask': None, 'status': 'pending'}}
         
         await collectionOrders.update_many(filter, updated_value)
     except Exception as e:
