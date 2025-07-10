@@ -7,11 +7,10 @@ __pycache__/
 env/
 venv/
 
-# environment
 .env
-
-# log file
 .log
+docker-compose.yml
+Dockerfile
 
 # starting file
 start.py
